@@ -71,3 +71,20 @@ def update_client(id: int, client: schemas.ClientUpdate, db: Annotated[Session, 
     db.commit()
     db.refresh(up_client)
     return up_client
+
+@router.delete(
+    "/{id}", 
+    status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(id: int, db: Annotated[Session, Depends(get_db)]):
+    stmt = select(models.Client).where(models.Client.id == id)
+    client = db.execute(stmt).scalar_one_or_none()
+    if client is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Client with id of {id} not found "
+        )
+    db.delete(client)
+    db.commit()
+    
+    
+    
