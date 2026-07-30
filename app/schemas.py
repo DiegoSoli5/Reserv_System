@@ -20,6 +20,9 @@ class ClientUpdate(BaseModel):
     password: str | None = Field(default=None, min_length=8, description="new password (optional)")
     role: str | None = None
     
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
-    
-    
+class TokenData(BaseModel):
+    id: int | None = None
