@@ -36,6 +36,6 @@ def login(user_creds: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annot
         raise credentials_exception
     
     access_token_expire = timedelta(minutes=settings.access_token_expire_minutes)
-    access_token = oauth2.create_access_token(data={"sub": str(client.id)}, expires_delta=access_token_expire)
+    access_token = oauth2.create_access_token(data={"sub": str(client.id)}, role=client.role , expires_delta=access_token_expire)
     
-    return schemas.Token(access_token=access_token, token_type="bearer")
+    return schemas.Token(access_token=access_token, token_type="bearer", role=client.role)
