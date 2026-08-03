@@ -4,7 +4,7 @@ from .routers import client, auth
 from . import models
 
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 

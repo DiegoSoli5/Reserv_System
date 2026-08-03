@@ -29,7 +29,8 @@ class Event(Base):
     # cascade="all, delete-orphan"
     #if an admin wants to delete a event, this step will delete all the orphan - bookings
     bookings: Mapped[List["Booking"]] = relationship(back_populates="event", cascade="all, delete-orphan")
-    
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id",ondelete="CASCADE"))
+
 class Booking(Base):
     __tablename__ = "bookings"
     id: Mapped[int] = mapped_column(primary_key=True)

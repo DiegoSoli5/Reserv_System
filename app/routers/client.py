@@ -49,7 +49,9 @@ def get_one_client(id: int, db: Session = Depends(get_db)):
 
 
 @router.patch("/{id}")
-def update_client(id: int, client: schemas.ClientUpdate, db: Annotated[Session, Depends(get_db)], current_client: Annotated[models.Client, Security(get_current_client, scopes=["clients:write"])]):
+def update_client(id: int, client: schemas.ClientUpdate,
+                  db: Annotated[Session, Depends(get_db)],
+                  current_client: Annotated[models.Client, Security(get_current_client, scopes=["clients:write"])]):
     stmt = select(models.Client).where(models.Client.id == id)
     up_client = db.scalars(stmt).first()
     
