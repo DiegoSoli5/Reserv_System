@@ -13,7 +13,7 @@ class Client(Base):
     role: Mapped[str] = mapped_column(nullable=True, default="client")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now())
     bookings: Mapped[List["Booking"]] = relationship(back_populates="client", cascade="all, delete-orphan")
-
+    events: Mapped[List["Event"]] = relationship(back_populates="client", cascade="all, delete-orphan")
 
 class Event(Base):
     __tablename__ = "events"
@@ -29,6 +29,7 @@ class Event(Base):
     # cascade="all, delete-orphan"
     #if an admin wants to delete a event, this step will delete all the orphan - bookings
     bookings: Mapped[List["Booking"]] = relationship(back_populates="event", cascade="all, delete-orphan")
+    client: Mapped["Client"] = relationship(back_populates="events")
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id",ondelete="CASCADE"))
 
 class Booking(Base):

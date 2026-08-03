@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .database import Base, engine
-from .routers import client, auth
+from .routers import client, auth, event
 from . import models
 
 
@@ -10,6 +10,7 @@ app = FastAPI()
 
 app.include_router(client.router)
 app.include_router(auth.router)
+app.include_router(event.router)
 
 @app.get("/")
 def read_root():

@@ -4,13 +4,16 @@ from datetime import datetime
 
 
 ## CLIENT SCHEMAS
-class Client(BaseModel):
-    email: EmailStr
-    password: str
-    
+
 class ClientRole(str, Enum):
     USER = "user"
     ADMIN = "admin"
+
+class Client(BaseModel):
+    email: EmailStr
+    password: str
+    role: ClientRole = ClientRole.USER
+    
 
 class ClientResponse(BaseModel):
     id: int
@@ -49,5 +52,5 @@ class Event(BaseModel):
     price: float = Field(gt=0)
     
 class EventResponse(Event):
-    client: ClientResponse | None = None
+    client: ClientResponse
     model_config = ConfigDict(from_attributes=True)
