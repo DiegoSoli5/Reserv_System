@@ -23,7 +23,7 @@ class Event(Base):
     date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     location: Mapped[str]
     total_tickets: Mapped[int]
-    avaliable_tickets: Mapped[int]
+    avaliable_tickets: Mapped[int] 
     price: Mapped[float]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now())
     # cascade="all, delete-orphan"

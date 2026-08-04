@@ -48,9 +48,16 @@ class Event(BaseModel):
     date: datetime
     location: str
     total_tickets: int = Field(gt=0)
-    avaliable_tickets: int = Field(gt=0)
     price: float = Field(gt=0)
     
 class EventResponse(Event):
     client: ClientResponse
     model_config = ConfigDict(from_attributes=True)
+
+class EventUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    date: datetime | None = None
+    location: str | None = None
+    total_tickets: int | None = Field(default=None, gt=0)
+    price: float | None = Field(default=None, gt=0)
