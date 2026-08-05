@@ -32,7 +32,13 @@ oauth2_scheme = OAuth2PasswordBearer(
         "clients:write": "edit other client's data",
         "clients:delete": "delete clients",
         "events:create": "create events",
-        "events:write": "edit events"
+        "events:delete": "delete events",
+        "events:write": "edit events",
+        "bookings:read": "see own bookings",
+        "bookings:read-all": "see all bookings",
+        "bookings:create": "create bookings",
+        "bookings:delete": "delete bookings",
+        "bookings:write": "edit bookings"
     })
 
 credentials_exception = HTTPException(

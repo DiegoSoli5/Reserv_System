@@ -48,7 +48,7 @@ def get_one_event(id: int, db: Annotated[Session, Depends(get_db)]):
 def create_event(db: Annotated[Session, Depends(get_db)],
                  event: schemas.Event,
                  current_client: Annotated[models.Client, Security(get_current_client, scopes=["events:create"])]):
-    new_event = models.Event(client_id=current_client.id, **event.model_dump())
+    new_event = models.Event(client_id=current_client.id, avaliable_tickets=event.total_tickets, **event.model_dump())
     db.add(new_event)
     db.commit()
     db.refresh(new_event)

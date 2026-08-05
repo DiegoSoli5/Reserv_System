@@ -1,25 +1,27 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Security
 from typing import Annotated
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 from ..database import get_db
 from .. import schemas, utils, models
 from ..oauth2 import get_current_client
+from sqlalchemy import func
 
 router = APIRouter(
     prefix="/client",
     tags=["Client"]
 )
 
-@router.get("/", response_model=list[schemas.ClientResponse])
+# , response_model=list[schemas.ClientBookingResponse]
+
+@router.get("/", response_model=list[schemas.ClientFullResponse])
 def get_clients(db: Session = Depends(get_db)):
-    stmt = select(models.Client)
-    clients = db.scalars(stmt).all()
+    stmt = select(models.Client, func.count(models.Booking.client_id).label("num_bookings")).join(models.Booking, models.Client.id == models.Booking.client_id, isouter=True).group_by(models.Client.id)
+    clients = db.execute(stmt).all()
     
-    print(clients)
+    # print(clients)
 
     return clients
-    
 
 @router.post("/")
 def create_client(client: schemas.Client, db: Session = Depends(get_db)):
@@ -39,11 +41,11 @@ def create_client(client: schemas.Client, db: Session = Depends(get_db)):
     
     return new_client
     
-@router.get("/{id}", response_model=schemas.ClientResponse)
+@router.get("/{id}", response_model=schemas.ClientFullResponse)
 def get_one_client(id: int, db: Session = Depends(get_db)):
     
-    stmt = select(models.Client).where(models.Client.id == id)
-    client = db.scalars(stmt).first()
+    stmt = select(models.Client, func.count(models.Booking.client_id).label("num_bookings")).join(models.Booking, models.Client.id == models.Booking.client_id, isouter=True).group_by(models.Client.id).where(models.Client.id == id)
+    client = db.execute(stmt).first()
     
     return client
 
