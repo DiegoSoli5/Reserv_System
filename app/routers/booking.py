@@ -80,6 +80,15 @@ def update_booking(id:int, db: Annotated[Session, Depends(get_db)], current_clie
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"booking with id:{id} was not found"
         )
+    if current_client.role == schemas.ClientRole.ADMIN:
+        if booking.status == schemas.BookingStatus.CONFIRMED:
+                event.avaliable_tickets += booking.quantity
+        booking.status = schemas.BookingStatus.CANCELLED
+        
+        db.commit()
+        db.refresh(booking)
+        
+        return
     if booking.client_id != current_client.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
