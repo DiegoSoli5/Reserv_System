@@ -23,7 +23,7 @@ def get_clients(db: Session = Depends(get_db)):
 
     return clients
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_client(client: schemas.Client, db: Session = Depends(get_db)):
     client.password = utils.get_password(client.password)
     new_client = models.Client(**client.model_dump())
@@ -79,7 +79,7 @@ def update_client(id: int, client: schemas.ClientUpdate,
 @router.delete(
     "/{id}", 
     status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(id: int, db: Annotated[Session, Depends(get_db)]):
+def delete_client(id: int, db: Annotated[Session, Depends(get_db)], current_client: Annotated[models.Client, Depends(get_current_client)]):
     stmt = select(models.Client).where(models.Client.id == id)
     client = db.execute(stmt).scalar_one_or_none()
     if client is None:
@@ -87,6 +87,12 @@ def delete_user(id: int, db: Annotated[Session, Depends(get_db)]):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Client with id of {id} not found "
         )
+    if current_client.id != client.id and current_client.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="you dont have permision to perform this action"
+        )
+        
     db.delete(client)
     db.commit()
     

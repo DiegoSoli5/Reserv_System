@@ -68,18 +68,26 @@ def create_booking(
     return new_booking
     
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
-def update_booking(id:int, db: Annotated[Session, Depends(get_db)], current_client: Annotated[models.Client, Security(get_current_client, scopes=["bookings:delete"])]):
+def cancell_booking(id:int, db: Annotated[Session, Depends(get_db)], current_client: Annotated[models.Client, Security(get_current_client, scopes=["bookings:delete"])]):
     stmt_booking = select(models.Booking).where(models.Booking.id == id)
     booking = db.scalars(stmt_booking).first()
-    
-    stmt_event = select(models.Event).where(models.Event.client_id == models.Booking.client_id)
-    event = db.scalars(stmt_event).first()
     
     if not booking:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"booking with id:{id} was not found"
         )
+
+    stmt_event = select(models.Event).where(models.Event.id == booking.event_id)
+    event = db.scalars(stmt_event).first()
+    
+    if event is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="event not found"
+        )
+        
+    # this is for the admin to be able to cancel another clients bookings
     if current_client.role == schemas.ClientRole.ADMIN:
         if booking.status == schemas.BookingStatus.CONFIRMED:
                 event.avaliable_tickets += booking.quantity

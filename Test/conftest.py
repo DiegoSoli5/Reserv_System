@@ -1,14 +1,13 @@
 from app.main import app
 from app.config import settings
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 import pytest
-from app import models, schemas
+from app import schemas
 from app.oauth2 import create_access_token
 from app.database import get_db, Base
 from datetime import timedelta, timezone, datetime
-
 
 # creating a database only for testing usages
 
@@ -23,6 +22,7 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def session():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    
     db = TestSessionLocal()
     try:
         yield db
@@ -67,29 +67,21 @@ def token(test_client):
 @pytest.fixture
 def token_admin(test_admin_client):
     
-    print("-"*10)
-    print(test_admin_client["role"])
-    print("-"*10)
-    
     token = create_access_token(
         data={"sub":str(test_admin_client["id"])},
         role=test_admin_client["role"])
-    
-    print("-"*10)
-    print(token)
-    print("-"*10)
     
     return token
     
 
 @pytest.fixture
-def autClient(client, token):
+def autClient(token):
     authed_client = TestClient(app)
     authed_client.headers.update({"Authorization": f"Bearer {token}"})
     return authed_client
 
 @pytest.fixture
-def autAdmin(client, token_admin):
+def autAdmin(token_admin):
     admin_client = TestClient(app)
     admin_client.headers.update({"Authorization": f"Bearer {token_admin}"})
     return admin_client
@@ -99,29 +91,9 @@ def multi_clients(test_admin_client, test_client):
     clients = [test_admin_client,test_client]
     return clients
 
-# @pytest.fixture
-# def test_event(session):
-#     event_data = {
-#         "title":"something",
-#         "description": None,
-#         "date": str(datetime.now(timezone.utc) + timedelta(minutes=10)),
-#         "location":"here",
-#         "total_tickets":10,
-#         "avaliable_tickets": 10,
-#         "price":100,
-#     }
-#     def create_event(data):
-#         return models.Event(**data)
-    
-#     new_event  = create_event(event_data)
-#     session.add(new_event)
-#     session.commit()
-    
-#     new_event = session.scalars(select(models.Event)).all()
-#     return new_event
 
 @pytest.fixture
-def test_create_event(autAdmin):
+def test_event(autAdmin):
     event_data = {
         "title":"something",
         "description": None,
@@ -139,4 +111,11 @@ def test_create_event(autAdmin):
     
     return event_res
 
-    
+
+@pytest.fixture
+def test_booking(autClient, test_event, test_client):
+    res = autClient.post("/booking/", json={"event_id":test_event.id, "quantity":"3"})
+
+    booking_res = schemas.BookingResponse(**res.json())
+    # assert test_create_event.client.id == test_client["id"]
+    return booking_res

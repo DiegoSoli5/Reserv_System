@@ -47,7 +47,7 @@ credentials_exception = HTTPException(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-def create_access_token(data:dict, role: ClientRole, expires_delta: timedelta | None):
+def create_access_token(data:dict, role: ClientRole, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     
     scopes = ROLE_SCOPES.get(role, [])
