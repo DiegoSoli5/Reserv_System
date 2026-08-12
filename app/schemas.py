@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from enum import Enum
-from datetime import datetime
+from datetime import datetime,  timezone, timedelta
 
 # OTHER SCHEMAS
 class BookingInClient(BaseModel):
@@ -68,7 +68,7 @@ class TokenData(BaseModel):
 class Event(BaseModel):
     title: str
     description: str | None = None
-    date: datetime
+    date: datetime | None = datetime.now(timezone.utc) + timedelta(minutes=10)
     location: str
     total_tickets: int = Field(gt=0)
     price: float = Field(gt=0)
@@ -77,7 +77,6 @@ class EventResponse(Event):
     id: int
     avaliable_tickets: int
     client: ClientResponse
-    
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -94,7 +93,6 @@ class BookingStatus(str, Enum):
     CONFIRMED = "CONFIRMED"
     CANCELLED = "CANCELLED"
     PENDING = "PENDING"
-    
 
 class CreateBooking(BaseModel):
     event_id: int | None = None

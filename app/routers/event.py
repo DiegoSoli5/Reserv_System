@@ -69,7 +69,11 @@ def update_event(id: int,
     if up_event.client_id != current_client.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this event")
 
-    updated_data = event.model_dump(exclude_unset=True)
+    updated_data = {
+        key: value
+        for key, value in event.model_dump(exclude_unset=True).items()
+        if value is not None
+    }
     
     if "total_tickets" in updated_data:
         tickets_sold = up_event.total_tickets - up_event.avaliable_tickets
